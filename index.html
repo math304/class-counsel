@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>우리반 상담일지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --ink:#1c2630; --muted:#5f6d7a; --line:#dde3e9;
+  --accent:#2b5c8a; --accent-soft:#e3edf6;
+  --todo:#a35c00; --todo-soft:#fdf1df;
+  --miss:#b3322a; --miss-soft:#fbe9e7;
+  --ok:#2f7a4f; --ok-soft:#e5f3ea;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171c; --paper:#1a2129; --ink:#e4e9ee; --muted:#98a5b2; --line:#2c3640;
+  --accent:#7fb0de; --accent-soft:#1f3346;
+  --todo:#f0b464; --todo-soft:#3a2c17;
+  --miss:#f08a80; --miss-soft:#3d2220;
+  --ok:#7ccb9c; --ok-soft:#1d3427; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171c; --paper:#1a2129; --ink:#e4e9ee; --muted:#98a5b2; --line:#2c3640;
+  --accent:#7fb0de; --accent-soft:#1f3346;
+  --todo:#f0b464; --todo-soft:#3a2c17;
+  --miss:#f08a80; --miss-soft:#3d2220;
+  --ok:#7ccb9c; --ok-soft:#1d3427; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:1.45rem;margin:0;font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.15rem;margin:0;font-weight:700;text-wrap:balance}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 12px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.primary{background:var(--accent);border-color:var(--accent);color:var(--paper);font-weight:600}
+.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.danger{color:var(--miss)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.78rem;font-weight:600;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.b-todo{background:var(--todo-soft);color:var(--todo)}
+.b-miss{background:var(--miss-soft);color:var(--miss)}
+.b-ok{background:var(--ok-soft);color:var(--ok)}
+.b-type{background:var(--accent-soft);color:var(--accent)}
+.summary{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px;margin-bottom:16px}
+.sumrow{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline}
+.big{font-size:1.6rem;font-weight:700}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok)}
+.period{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.88rem}
+.period input{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:3px 6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:left;display:grid;gap:4px;min-width:0}
+.card.miss{border-color:var(--miss);background:var(--miss-soft)}
+.card.gone{border-color:var(--line);background:var(--bg);color:var(--muted)}
+.card.gone .nm{color:var(--muted)}
+.b-gone{background:var(--line);color:var(--muted)}
+.card .nm{font-weight:600;font-size:1rem}
+.card .meta{font-size:.8rem;color:var(--muted)}
+.card .flags{display:flex;gap:4px;flex-wrap:wrap;min-height:20px}
+.sec{display:grid;gap:10px;margin-top:18px}
+.label{font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:.04em}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:10px}
+.panel.todo{border-color:var(--todo);background:var(--todo-soft)}
+.fu{display:flex;gap:10px;align-items:flex-start}
+.fu .t{flex:1;min-width:0}
+.fu .when{font-size:.8rem;color:var(--muted)}
+.rec{border-left:3px solid var(--line);padding:4px 0 4px 12px;display:grid;gap:4px}
+.rec .head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rec .body{white-space:pre-wrap;overflow-wrap:anywhere}
+.rec .next{font-size:.88rem;color:var(--todo)}
+.rec .next.done{color:var(--muted);text-decoration:line-through}
+.rec .acts{display:flex;gap:4px}
+.rec .acts button{padding:2px 8px;font-size:.8rem}
+form{display:grid;gap:10px}
+.field{display:grid;gap:4px}
+.field input,.field textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;width:100%}
+textarea{resize:vertical;min-height:90px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips label{border:1px solid var(--line);border-radius:999px;padding:3px 12px;cursor:pointer;font-size:.88rem;background:var(--bg)}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label:has(input:checked){background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.chips label:has(input:focus-visible){outline:2px solid var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{color:var(--muted);text-align:center;padding:24px 8px}
+.notice{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:12px 14px;font-size:.9rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:.9rem;z-index:20}
+.date{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.card{transition:border-color .15s}}
+
+.warn{background:var(--miss-soft);color:var(--miss);border-radius:10px;padding:12px 14px;font-size:.9rem}
+
+html,body{margin:0}
+.archive-band{background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 14px;font-size:.9rem;margin-bottom:14px}
+.remind{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--todo-soft);color:var(--ink);border:1px solid var(--todo);border-radius:10px;padding:10px 14px;font-size:.9rem;margin-bottom:14px}
+.danger-panel{border-color:var(--miss)}
+.steps{display:grid;gap:12px}
+.stepline{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.stepno{font-family:var(--f-num);color:var(--accent);font-weight:500;min-width:1.5em}
+.stepline .t{flex:1;min-width:200px}
+.pv{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;background:var(--bg)}
+.pv.bad{border-color:var(--miss)}
+.pv select{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 6px}
+.pv .body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.92rem}
+.radio{display:flex;gap:8px;align-items:center}
+.status-line{font-size:.85rem;color:var(--muted)}
+a{color:var(--accent)}
+.btnlink{display:inline-block;border:1px solid var(--accent);color:var(--accent);border-radius:8px;padding:6px 12px;text-decoration:none;font-weight:600}
+.btnlink:hover{background:var(--accent-soft)}
+.pv select{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 6px}
+.drop{position:relative;border:2px dashed var(--line);border-radius:12px;padding:20px 16px;text-align:center;display:grid;gap:4px;justify-items:center;cursor:pointer;background:var(--bg)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop input{position:absolute;opacity:0;width:1px;height:1px}
+.drop:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumb{position:relative;width:88px;height:88px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--bg)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb button{position:absolute;top:4px;right:4px;padding:0 7px;font-size:.8rem;border-radius:99px}
+.pv input,.pv textarea{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:5px 8px;min-width:0}
+.pv textarea{width:100%;border-radius:8px;padding:8px 10px}
+.pv>input{width:100%}
+.mini{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:3px 6px}
+button:disabled{opacity:.5;cursor:default}
+@media print{
+  body{background:#fff;color:#000}
+  .noprint,.top .row,.tabs,form,.acts,.remind,.toast,#period-row,.fu button{display:none!important}
+  .panel,.card{border-color:#bbb;break-inside:avoid}
+  .wrap{max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="top"><h1>우리반 상담일지</h1></div>
+  <div class="notice">불러오는 중이에요…</div>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script id="seed" type="application/json">{"students":[],"records":[]}</script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const STORE_KEY="uri-counsel-log-v1",PREV_KEY="uri-counsel-log-v1-before-clear";
+const TYPES=["성적","진로","교우","생활","학부모","기타"];
+const TEMPLATE=document.documentElement.cloneNode(true);
+const SEED=(()=>{try{return JSON.parse(document.getElementById("seed").textContent)}catch(e){return null}})();
+const S={mode:"work",roster:[],periodStart:"",records:[],savedAt:"",lastFileSave:"",storageOk:true,newer:null,view:"list",filter:"all",cur:null,editing:null,delAsk:null,paste:null,archived:false,clearKind:"records",clearAsk:false,restore:null};
+const app=document.getElementById("app");
+
+const h=(t,a,...c)=>{const e=document.createElement(t);for(const[k,v]of Object.entries(a||{})){if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(k==="value")e.value=v;else if(k==="checked")e.checked=!!v;else e.setAttribute(k,v===true?"":v);}for(const x of c.flat(9)){if(x==null||x===false)continue;e.append(x.nodeType?x:document.createTextNode(String(x)));}return e;};
+const pad=n=>String(n).padStart(2,"0");
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const md=s=>{if(!s)return"";const[,m,d]=s.split("-");return `${+m}/${+d}`};
+const ymd=iso=>{if(!iso)return"";const d=new Date(iso);return isNaN(d)?"":`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+const toast=msg=>{const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)};
+const newId=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+// ---- 저장 (이 컴퓨터 브라우저 + 파일)
+function load(d){S.roster=(d.students||[]).map(x=>({...x}));S.records=(d.records||[]).map(x=>({...x}));S.periodStart=d.periodStart||"";S.savedAt=d.savedAt||"";S.lastFileSave=d.lastFileSave||""}
+function snapshot(){return{savedAt:S.savedAt,lastFileSave:S.lastFileSave,periodStart:S.periodStart,students:S.roster,records:S.records}}
+function readStore(key){try{const t=localStorage.getItem(key);return t?JSON.parse(t):null}catch(e){S.storageOk=false;return null}}
+let DB=null,DOWN=null,UID=null,SAVING=Promise.resolve(),UNSUB=[],LOADING=false;
+function persist(at){if(!DB||!UID||!S.lastSaved||LOADING)return;S.savedAt=at||new Date().toISOString();SAVING=SAVING.then(saveAll).catch(()=>{S.storageOk=false;toast("저장하지 못했어요. 인터넷 연결을 확인하고 다시 해 주세요.")})}
+async function saveAll(){
+  const base="users/"+UID;
+  const meta={savedAt:S.savedAt,lastFileSave:S.lastFileSave,periodStart:S.periodStart};
+  const mj=JSON.stringify(meta),rj=JSON.stringify(S.roster);
+  if(mj!==S.lastSaved.meta){await DB.doc(base+"/main").set(meta);S.lastSaved.meta=mj}
+  if(rj!==S.lastSaved.roster){await DB.doc(base+"/roster").set({students:S.roster});S.lastSaved.roster=rj}
+  const cur=new Map(S.records.map(r=>[r.id,JSON.stringify(r)]));
+  for(const[id,j]of cur){if(S.lastSaved.recs.get(id)!==j){await DB.doc(base+"/records/"+id).set(JSON.parse(j));S.lastSaved.recs.set(id,j)}}
+  for(const id of [...S.lastSaved.recs.keys()]){if(!cur.has(id)){await DB.doc(base+"/records/"+id).delete();S.lastSaved.recs.delete(id)}}
+  S.storageOk=true;
+}
+async function download(name,blob){
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function fileHtml(mode,at){
+  const doc=TEMPLATE.cloneNode(true);
+  const data={mode,savedAt:at,lastFileSave:at,periodStart:S.periodStart,students:S.roster,records:S.records};
+  doc.querySelector("#seed").textContent=JSON.stringify(data).replace(/</g,"\\u003c");
+  const ap=doc.querySelector("#app");if(ap)ap.innerHTML='<div class="top"><h1>우리반 상담일지</h1></div><div class="notice">불러오는 중이에요…</div>';
+  return "<!doctype html>\n"+doc.outerHTML;
+}
+function saveWorkFile(){
+  const at=new Date().toISOString();
+  download(`우리반_상담일지_${today()}.html`,new Blob([fileHtml("work",at)],{type:"text/html"}));
+  S.lastFileSave=at;persist(at);render();toast("상담일지 파일을 저장했어요 (다운로드 폴더)");
+}
+function saveArchiveFile(){
+  const at=new Date().toISOString();
+  download(`상담일지_보관본_${today()}.html`,new Blob([fileHtml("archive",at)],{type:"text/html"}));
+  S.archived=true;S.lastFileSave=at;persist(at);render();toast("보관본을 저장했어요 (다운로드 폴더)");
+}
+const daysSince=iso=>{if(!iso)return Infinity;return Math.floor((Date.now()-new Date(iso))/86400000)};
+
+// ---- 파생 데이터
+function stats(){
+  const by={};for(const s of S.roster)by[s.id]={recs:[],last:"",open:[],inPeriod:false};
+  for(const r of S.records){const b=by[r.studentId];if(!b)continue;b.recs.push(r);if(r.date>b.last)b.last=r.date;if(r.followUp&&!r.followDone)b.open.push(r);if(!S.periodStart||r.date>=S.periodStart)b.inPeriod=true;}
+  for(const b of Object.values(by))b.recs.sort((x,y)=>y.date.localeCompare(x.date)||(y.createdAt||0)-(x.createdAt||0));
+  return by;
+}
+const isGone=s=>/전학/.test(s.name);
+const showName=s=>isGone(s)?s.name.replace(/[\s\-_/,.]*\(?전학\)?/g,"").trim()||s.name:s.name;
+const sortedRecs=()=>[...S.records].sort((x,y)=>y.date.localeCompare(x.date)||(y.createdAt||0)-(x.createdAt||0));
+const stuName=id=>{const s=S.roster.find(x=>x.id===id);return s?`${pad(s.num)} ${showName(s)}`:"(명단에 없는 학생)"};
+const ro=()=>S.mode==="archive";
+
+// ---- 화면
+function render(){
+  const keepY=window.scrollY,same=S.view===render._last&&S.cur===render._cur&&S.editing===render._ed;
+  const draft={};let typeVal=null;const focusId=document.activeElement?.id;
+  if(same){for(const id of ["f-date","f-content","f-next","roster","paste"]){const el=document.getElementById(id);if(el)draft[id]=el.value}const c=app.querySelector("input[name=type]:checked");typeVal=c?c.value:"";}
+  const body=S.view==="roster"?[rosterView()]:S.view==="manage"?[manageView()]:S.view==="paste"?[pasteView()]:
+    S.view==="student"&&S.cur?[studentView()]:[newerBanner(),remindBanner(),summary(),tabs(),S.view==="todo"?todoView():S.view==="all"?allView():listView()];
+  app.replaceChildren(...[header(),ro()?h("div",{class:"archive-band"},`보관본 · ${ymd(S.savedAt)} 저장 · 읽기 전용이에요. 기록을 이어서 쓰려면 작업용 상담일지 파일의 「관리 → 백업 불러오기」에서 이 파일을 고르세요.`):null,
+    !S.storageOk&&!ro()?h("div",{class:"warn",style:"margin-bottom:14px"},"클라우드 저장에 문제가 있어요. 인터넷 연결을 확인하고 HTML 백업을 저장해 주세요."):null,...body].filter(Boolean));
+  if(same){for(const[id,v]of Object.entries(draft)){const el=document.getElementById(id);if(el)el.value=v}
+    if(typeVal!==null)app.querySelectorAll("input[name=type]").forEach(r=>r.checked=r.value===typeVal);
+    if(focusId)document.getElementById(focusId)?.focus({preventScroll:true});
+    window.scrollTo(0,keepY);}
+  render._last=S.view;render._cur=S.cur;render._ed=S.editing;
+}
+function header(){
+  const go=v=>()=>{S.view=v;render();window.scrollTo(0,0)};
+  return h("div",{class:"top"},h("h1",null,"🌸 우리반 상담일지"),
+    h("div",{class:"row noprint"},
+      ro()?null:h("button",{style:"background:#e0f2fe;border-color:#7dd3fc;color:#075985",onclick:saveWorkFile},"💾 html"),
+      S.records.length?h("button",{style:"background:#e0f2fe;border-color:#7dd3fc;color:#075985",onclick:exportXlsx},"💾 Excel"):null,
+      ro()?h("button",{onclick:()=>window.print()},"인쇄"):null,
+      ro()?null:h("button",{onclick:()=>openPaste()},"수기기록 저장"),
+      ro()?null:h("button",{onclick:go("manage")},"관리"),UID?h("button",{onclick:()=>firebase.auth().signOut()},"로그아웃"):null));
+}
+function newerBanner(){
+  const n=S.newer;if(!n||ro())return null;
+  return h("div",{class:"remind"},h("span",null,`이 파일에는 ${ymd(n.savedAt)}에 저장된 기록 ${n.records.length}건이 들어 있어요. 지금 이 컴퓨터에 있는 기록(${S.records.length}건)보다 최근이에요.`),
+    h("span",{class:"row"},h("button",{class:"primary",onclick:()=>{S.prev=snapshot();load(n);S.newer=null;persist(n.savedAt);render();toast("파일에 있는 기록으로 바꿨어요")}},"파일 기록으로 바꾸기"),
+      h("button",{onclick:()=>{S.newer=null;render()}},"지금 기록 그대로 쓰기")));
+}
+function remindBanner(){
+  if(ro()||!S.records.length)return null;const d=daysSince(S.lastFileSave);if(d<7)return null;
+  return h("div",{class:"remind noprint"},h("span",null,d===Infinity?"아직 파일로 저장한 적이 없어요. 브라우저 기록을 지우면 상담일지도 지워질 수 있으니 파일로 저장해 두세요.":`마지막으로 파일로 저장한 지 ${d}일 지났어요.`),
+    h("button",{class:"primary",onclick:saveWorkFile},"지금 파일로 저장"));
+}
+function summary(){
+  const by=stats(),act=S.roster.filter(s=>!isGone(s)),n=act.length,done=act.filter(s=>by[s.id].inPeriod).length,open=S.records.filter(r=>r.followUp&&!r.followDone).length;
+  return h("div",{class:"summary",id:"summary"},
+    h("div",{class:"sumrow"},
+      h("div",null,h("span",{class:"big num"},done),h("span",{class:"num"}," / ",n,"명")," 상담 완료"),
+      n-done?h("span",{class:"badge b-miss"},`미상담 ${n-done}명`):h("span",{class:"badge b-ok"},"모두 상담했어요"),
+      open?h("span",{class:"badge b-todo"},`확인할 것 ${open}건`):null),
+    h("div",{class:"bar"},h("i",{style:`width:${n?done/n*100:0}%`})),
+    ro()?(S.periodStart?h("div",{class:"status-line"},`상담 기간 시작일 ${S.periodStart}`):null):
+    h("label",{class:"period",for:"period",id:"period-row"},"이번 상담 기간 시작일",
+      h("input",{type:"date",id:"period",value:S.periodStart,onchange:e=>{S.periodStart=e.target.value;persist();render()}}),
+      S.periodStart?h("button",{class:"ghost",type:"button",onclick:()=>{S.periodStart="";persist();render()}},"기간 해제"):h("span",null,"(비워 두면 한 번도 상담 안 한 학생이 미상담)")));
+}
+function tabs(){
+  const t=(v,label)=>h("button",{"aria-pressed":S.view===v?"true":"false",onclick:()=>{S.view=v;render()}},label);
+  return h("div",{class:"row",id:"tabs",style:"justify-content:space-between;margin-bottom:10px"},
+    h("div",{class:"tabs"},t("list","학생별"),t("todo","체크사항"),t("all","전체 기록")),
+    S.view==="list"?h("div",{class:"tabs"},
+      ...[["all","전체"],["miss","미상담"],["todo","확인필요"]].map(([v,l])=>h("button",{"aria-pressed":S.filter===v?"true":"false",onclick:()=>{S.filter=v;render()}},l))):null);
+}
+function listView(){
+  if(!S.roster.length)return h("div",{class:"panel"},h("h2",null,"먼저 반 명단을 넣어 주세요"),
+    h("p",{style:"margin:0;color:var(--muted)"},"한 줄에 한 명씩 \"번호 이름\"으로 붙여 넣으면 돼요."),
+    ro()?null:h("div",null,h("button",{class:"primary",onclick:()=>{S.view="roster";render()}},"명단 넣기")));
+  const by=stats();
+  let list=S.roster;
+  if(S.filter==="miss")list=list.filter(s=>!isGone(s)&&!by[s.id].inPeriod);
+  if(S.filter==="todo")list=list.filter(s=>by[s.id].open.length);
+  if(!list.length)return h("div",{class:"empty"},S.filter==="miss"?"미상담 학생이 없어요.":"확인할 것이 남은 학생이 없어요.");
+  return h("div",{class:"grid",id:"student-grid"},list.map(s=>{const b=by[s.id];
+    const gone=isGone(s);
+    return h("button",{class:"card"+(gone?" gone":b.inPeriod?"":" miss"),id:"card-"+s.id,onclick:()=>openStudent(s.id)},
+      h("div",{class:"nm"},h("span",{class:"num",style:"color:var(--muted);margin-right:6px"},pad(s.num)),showName(s)),
+      h("div",{class:"meta"},b.recs.length?`${b.recs.length}회 · 최근 ${md(b.last)}`:"상담 기록 없음"),
+      h("div",{class:"flags"},gone?h("span",{class:"badge b-gone"},"전학"):!b.inPeriod?h("span",{class:"badge b-miss"},"미상담"):null,b.open.length?h("span",{class:"badge b-todo"},`확인 ${b.open.length}`):null));
+  }));
+}
+function followItem(r,withName){
+  return h("div",{class:"fu"},
+    h("div",{class:"t"},withName?h("div",null,h("button",{class:"ghost",style:"padding:0;font-weight:600;color:var(--ink)",onclick:()=>openStudent(r.studentId)},stuName(r.studentId))):null,
+      h("div",null,r.followUp),h("div",{class:"when"},`${md(r.date)} ${r.type||""} 상담에서 남긴 메모`)),
+    ro()?null:h("button",{onclick:()=>setDone(r,true)},"확인 완료"));
+}
+function todoView(){
+  const open=sortedRecs().filter(r=>r.followUp&&!r.followDone).reverse();
+  if(!open.length)return h("div",{class:"empty"},"다음 상담 때 확인할 것이 없어요. 상담 기록에 \"다음에 확인할 것\"을 적으면 여기에 모여요.");
+  return h("div",{class:"panel todo"},open.map(r=>followItem(r,true)));
+}
+function recItem(r,withName){
+  const asking=S.delAsk===r.id;
+  return h("div",{class:"rec",id:"rec-"+r.id},
+    h("div",{class:"head"},h("span",{class:"date"},r.date),r.type?h("span",{class:"badge b-type"},r.type):null,
+      withName?h("button",{class:"ghost",style:"padding:0;font-weight:600;color:var(--ink)",onclick:()=>openStudent(r.studentId)},stuName(r.studentId)):null,
+      !withName&&!ro()?h("span",{class:"acts",style:"margin-left:auto"},
+        asking?[h("button",{class:"danger",onclick:()=>delRec(r)},"삭제할게요"),h("button",{onclick:()=>{S.delAsk=null;render()}},"취소")]:
+        [h("button",{class:"ghost",onclick:()=>{S.editing=r.id;render();document.getElementById("f-content")?.focus()}},"수정"),h("button",{class:"ghost",onclick:()=>{S.delAsk=r.id;render()}},"삭제")]):null),
+    r.content?h("div",{class:"body"},r.content):null,
+    r.followUp?h("div",{class:"next"+(r.followDone?" done":"")},"다음에 확인: ",r.followUp,r.followDone&&r.doneDate?` (${md(r.doneDate)} 확인)`:""):null);
+}
+function allView(){
+  const rs=sortedRecs();
+  if(!rs.length)return h("div",{class:"empty"},"아직 상담 기록이 없어요. 학생을 눌러 첫 기록을 남겨 보세요.");
+  return h("div",{class:"panel"},rs.map(r=>recItem(r,true)));
+}
+function openStudent(id){S.cur=id;S.view="student";S.editing=null;S.delAsk=null;render();window.scrollTo(0,0)}
+function studentView(){
+  const s=S.roster.find(x=>x.id===S.cur);if(!s){S.view="list";return listView()}
+  const b=stats()[s.id],ed=S.editing?S.records.find(r=>r.id===S.editing):null;
+  const typ=ed?.type||"";
+  return h("div",null,
+    h("div",{class:"row",style:"margin-bottom:12px"},h("button",{class:"noprint",onclick:()=>{S.view="list";render()}},"← 학생 목록"),
+      h("h2",null,h("span",{class:"num",style:"color:var(--muted);margin-right:6px"},pad(s.num)),showName(s)),
+      isGone(s)?h("span",{class:"badge b-gone"},"전학"):b.inPeriod?h("span",{class:"badge b-ok"},"이번 기간 상담함"):h("span",{class:"badge b-miss"},"미상담"),
+      h("span",{class:"meta",style:"color:var(--muted);font-size:.85rem"},`총 ${b.recs.length}회`),
+      h("button",{class:"ghost noprint",style:"margin-left:auto",onclick:()=>window.print()},"이 학생 인쇄")),
+    b.open.length?h("div",{class:"sec"},h("div",{class:"label"},"지난 상담에서 확인하기로 한 것"),h("div",{class:"panel todo"},b.open.slice().reverse().map(r=>followItem(r,false)))):null,
+    ro()?null:h("div",{class:"sec noprint"},h("div",{class:"label"},ed?"기록 수정":"새 상담 기록"),
+      h("form",{class:"panel",onsubmit:e=>{e.preventDefault();saveRec(e.target,s.id,ed)}},
+        h("div",{class:"row"},h("div",{class:"field"},h("label",{for:"f-date",class:"label"},"날짜"),h("input",{type:"date",id:"f-date",name:"date",value:ed?.date||today(),required:true}))),
+        h("div",{class:"field"},h("span",{class:"label"},"유형"),h("div",{class:"chips"},TYPES.map(t=>h("label",null,h("input",{type:"radio",name:"type",value:t,checked:typ===t}),t)))),
+        h("div",{class:"field"},h("label",{for:"f-content",class:"label"},"상담 내용"),h("textarea",{id:"f-content",name:"content",placeholder:"예: 1회고사 수학 서술형에서 감점이 많았음. 풀이 과정 쓰는 연습 필요."},ed?.content||"")),
+        h("div",{class:"field"},h("label",{for:"f-next",class:"label"},"다음 상담 때 확인할 것 (선택)"),h("input",{id:"f-next",name:"followUp",placeholder:"예: 오답노트 작성했는지 확인",value:ed?.followUp||""})),
+        h("div",{class:"row"},h("button",{class:"primary",type:"submit"},ed?"수정 저장":"기록 저장"),ed?h("button",{type:"button",onclick:()=>{S.editing=null;render()}},"취소"):null))),
+    h("div",{class:"sec"},h("div",{class:"label"},"누가기록"),
+      b.recs.length?h("div",{class:"panel"},b.recs.map(r=>recItem(r,false))):h("div",{class:"empty"},"아직 기록이 없어요.")));
+}
+function rosterView(){
+  const txt=S.roster.map(s=>`${pad(s.num)} ${s.name}`).join("\n");
+  return h("div",{class:"sec"},
+    h("div",{class:"row"},h("button",{onclick:()=>{S.view="manage";render()}},"← 관리"),h("h2",null,"명단 관리")),
+    h("form",{class:"panel",onsubmit:e=>{e.preventDefault();applyRoster(e.target.roster.value)}},
+      h("p",{style:"margin:0;color:var(--muted)"},"한 줄에 한 명씩 \"번호 이름\"으로 적어 주세요. 이름 뒤에 '전학'을 붙이면(예: 15 안현지 전학) 회색으로 표시되고 상담 현황 집계에서 빠져요. 번호가 같으면 이름을 바꿔도 기존 상담 기록이 그대로 이어져요."),
+      h("textarea",{id:"roster",name:"roster",style:"min-height:280px",placeholder:"01강병욱\n02권다해\n03권윤우"},txt),
+      h("div",null,h("button",{class:"primary",type:"submit"},"명단 저장"))));
+}
+
+// ---- 관리: 백업 불러오기, 한 해 정리
+function manageView(){
+  const prev=S.prev;
+  const r=S.restore;
+  return h("div",{class:"sec"},
+    h("div",{class:"row"},h("button",{onclick:()=>{S.view="list";S.clearAsk=false;S.restore=null;render()}},"← 학생 목록"),h("h2",null,"관리")),
+    h("div",{class:"panel"},h("h2",null,"안내"),
+      h("p",{style:"margin:0"},S.storageOk?"기록할 때마다 개인 Firebase 계정에 자동 저장되고, 로그인한 다른 기기에도 동기화돼요.":"클라우드 저장에 문제가 있어요. 인터넷 연결을 확인하고 HTML 백업을 저장해 주세요."),
+      h("p",{class:"status-line",style:"margin:0"},`상담 기록 ${S.records.length}건 · 학생 ${S.roster.length}명 · 마지막 파일 저장 ${S.lastFileSave?ymd(S.lastFileSave):"없음"}`),
+      h("p",{class:"status-line",style:"margin:0"},"「💾 html」을 누르면 지금까지의 기록이 모두 들어 있는 상담일지 파일이 다운로드 폴더에 저장돼요. 브라우저 기록이 지워지거나 다른 컴퓨터로 옮길 때 그 파일을 열면 돼요."),
+      h("div",{class:"row"},h("button",{onclick:()=>{S.view="roster";render()}},"명단 관리"))),
+    h("div",{class:"panel"},h("h2",null,"백업 불러오기"),
+      h("p",{style:"margin:0;color:var(--muted)"},"예전에 저장한 상담일지 파일(.html)을 고르면 그 안의 기록으로 바꿔요. 보관본도 고를 수 있어요."),
+      h("input",{type:"file",id:"restoreFile",accept:".html,.htm,.json",onchange:e=>readBackup(e.target.files[0])}),
+      r?h("div",{class:"pv"},h("div",null,`고른 파일: ${r.name} · ${ymd(r.data.savedAt)||"날짜 없음"} 저장 · 학생 ${r.data.students.length}명 · 기록 ${r.data.records.length}건`),
+        h("div",{class:"status-line"},`지금 기록 ${S.records.length}건은 이 파일의 기록으로 바뀌어요.`),
+        h("div",{class:"row"},h("button",{class:"primary",onclick:applyBackup},"이 파일 기록으로 바꾸기"),h("button",{onclick:()=>{S.restore=null;render()}},"취소"))):null),
+    h("div",{class:"panel danger-panel"},h("h2",null,"한 해 기록 정리하고 비우기"),
+      h("p",{style:"margin:0;color:var(--muted)"},"학년이 끝나면 보관본을 저장한 뒤 기록을 비우고 새로 시작해요. 보관본은 읽기 전용 파일이라, 나중에 열어 보거나 엑셀로 다시 저장할 수 있어요."),
+      h("div",{class:"steps"},
+        h("div",{class:"stepline"},h("span",{class:"stepno"},"1"),h("div",{class:"t"},"보관본 저장 ",S.archived?h("span",{class:"badge b-ok"},"저장함"):null),h("button",{class:S.archived?"":"primary",onclick:saveArchiveFile},"보관본 저장")),
+        h("div",{class:"stepline"},h("span",{class:"stepno"},"2"),h("div",{class:"t"},"엑셀로도 저장 (선택)"),h("button",{onclick:exportXlsx,disabled:!S.records.length},"Excel로 저장")),
+        h("div",{class:"stepline"},h("span",{class:"stepno"},"3"),h("div",{class:"t"},
+            h("label",{class:"radio"},h("input",{type:"radio",name:"clearKind",value:"records",checked:S.clearKind==="records",onchange:()=>{S.clearKind="records";S.clearAsk=false;render()}}),"상담 기록만 지우기 (명단은 그대로)"),
+            h("label",{class:"radio"},h("input",{type:"radio",name:"clearKind",value:"all",checked:S.clearKind==="all",onchange:()=>{S.clearKind="all";S.clearAsk=false;render()}}),"명단까지 모두 지우기 (새 반을 맡을 때)")),
+          S.clearAsk?h("span",{class:"row"},h("button",{class:"danger",onclick:clearAll},"정말 지울게요"),h("button",{onclick:()=>{S.clearAsk=false;render()}},"취소")):
+            h("button",{class:"danger",disabled:!S.archived,onclick:()=>{S.clearAsk=true;render()}},"지우기"))),
+      S.archived?null:h("p",{class:"status-line",style:"margin:0"},"1번 보관본을 먼저 저장해야 지울 수 있어요."),
+      prev&&!S.records.length?h("div",{class:"row"},h("span",{class:"status-line"},`방금 지운 기록(${(prev.records||[]).length}건)을 되돌릴 수 있어요.`),h("button",{onclick:()=>{load(prev);S.prev=null;persist();render();toast("지운 기록을 되돌렸어요")}},"되돌리기")):null));
+}
+function readBackup(file){
+  if(!file)return;const fr=new FileReader();
+  fr.onload=()=>{const txt=String(fr.result);let data=null;
+    try{const m=txt.match(/<script id="seed" type="application\/json">([\s\S]*?)<\/script>/);data=JSON.parse(m?m[1]:txt)}catch(e){}
+    if(!data||!Array.isArray(data.students)||!Array.isArray(data.records)){toast("상담일지 파일이 아니에요. 「💾 html」이나 「보관본 저장」으로 만든 파일을 골라 주세요.");return}
+    S.restore={name:file.name,data};render()};
+  fr.readAsText(file);
+}
+function applyBackup(){
+  const d=S.restore.data;S.prev=snapshot();
+  load({...d,lastFileSave:d.savedAt});S.restore=null;S.newer=null;persist();S.view="list";render();toast(`기록 ${S.records.length}건을 불러왔어요`);
+}
+function clearAll(){
+  S.prev=snapshot();
+  const n=S.records.length;S.records=[];S.periodStart="";if(S.clearKind==="all")S.roster=[];
+  S.lastFileSave="";S.clearAsk=false;S.archived=false;persist();render();toast(`상담 기록 ${n}건을 지웠어요`);
+}
+
+// ---- 사진 기록 붙여넣기 (사진 정리는 Claude의 「손글씨 상담 정리」 페이지에서)
+const PHOTO_URL="https://claude.ai/artifact/JhuXDv3bmSwo3qj6ryEkBU";
+function openPaste(text){S.view="paste";S.paste=text?parseBlocks(text):null;render();if(text){const el=document.getElementById("paste");if(el)el.value=text}window.scrollTo(0,0)}
+function pasteView(){
+  const P=S.paste;
+  return h("div",{class:"sec"},
+    h("div",{class:"row"},h("button",{onclick:()=>{S.view="list";S.paste=null;render()}},"← 학생 목록"),h("h2",null,"사진 기록 붙여넣기")),
+    h("div",{class:"panel"},
+      h("div",{class:"steps"},
+        h("div",{class:"stepline"},h("span",{class:"stepno"},"1"),h("div",{class:"t"},"Claude의 손글씨 상담 정리 페이지에서 메모 사진을 올리고 「정리하기」 → 「복사하기」를 누르세요."),h("a",{href:PHOTO_URL,target:"_blank",rel:"noopener",class:"btnlink"},"사진 정리 열기")),
+        h("div",{class:"stepline"},h("span",{class:"stepno"},"2"),h("div",{class:"t"},"아래 칸에 붙여 넣고(Ctrl+V) 「읽기」를 누르세요. 학생 목록 화면에서 바로 Ctrl+V를 눌러도 돼요."))),
+      h("textarea",{id:"paste",style:"min-height:140px",placeholder:"#상담기록\n번호: 01\n이름: 홍길동\n날짜: 2026-10-21\n유형: 진로\n다음에 확인할 것: …\n내용:\n…\n#끝"}),
+      h("div",{class:"row"},h("button",{class:"primary",onclick:()=>{const t=document.getElementById("paste").value;S.paste=parseBlocks(t);if(!S.paste.length)toast("읽을 수 있는 기록이 없어요. 사진 정리 페이지에서 복사한 내용을 그대로 붙여 넣어 주세요.");render()}},"읽기"))),
+    P&&P.length?h("div",{class:"panel"},h("h2",null,`${P.length}건 확인`),
+      ...P.map((p,i)=>h("div",{class:"pv"+(p.sid?"":" bad")},
+        h("div",{class:"row"},
+          h("select",{id:"pv-s"+i,"aria-label":"학생",onchange:e=>{p.sid=e.target.value;render()}},h("option",{value:""},p.name||p.num?`(${[p.num,p.name].filter(Boolean).join(" ")} — 골라 주세요)`:"(학생을 골라 주세요)"),...S.roster.map(s=>h("option",{value:s.id,selected:p.sid===s.id},`${pad(s.num)} ${showName(s)}`))),
+          h("span",{class:"date"},p.date),p.type?h("span",{class:"badge b-type"},p.type):null,
+          h("button",{class:"ghost",style:"margin-left:auto",onclick:()=>{P.splice(i,1);render()}},"빼기")),
+        h("div",{class:"body"},p.content),p.followUp?h("div",{style:"color:var(--todo);font-size:.88rem"},"다음에 확인: ",p.followUp):null)),
+      h("div",{class:"row"},h("button",{class:"primary",disabled:P.some(p=>!p.sid),onclick:addPasted},`${P.length}건 상담일지에 넣기`),
+        P.some(p=>!p.sid)?h("span",{class:"status-line",style:"color:var(--miss)"},"빨간 테두리 기록의 학생을 골라 주세요."):null)):null);
+}
+function normDate(s){s=(s||"").trim();let m=s.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);if(m)return `${m[1]}-${pad(+m[2])}-${pad(+m[3])}`;m=s.match(/^(\d{1,2})\D+(\d{1,2})/);if(m)return `${new Date().getFullYear()}-${pad(+m[1])}-${pad(+m[2])}`;return today()}
+function matchStudent(num,name){
+  const core=n=>(n||"").replace(/\s/g,"").split(/[\-_/(\[,.]/)[0].replace(/전학$/,"");
+  const nm=core(name),n=parseInt(num,10);
+  if(nm){const hits=S.roster.filter(s=>core(showName(s))===nm);if(hits.length===1)return hits[0].id;if(hits.length>1){const x=hits.find(s=>s.num===n);if(x)return x.id}}
+  if(!nm&&n){const x=S.roster.find(s=>s.num===n);if(x)return x.id}
+  return "";
+}
+function parseBlocks(text){
+  text=(text||"").replace(/\r/g,"");
+  let parts=text.split("#상담기록").slice(1);if(!parts.length&&/내용\s*:/.test(text))parts=[text];
+  const out=[];
+  for(let p of parts){p=p.split("#끝")[0];const get=k=>{const m=p.match(new RegExp("^\\s*"+k+"\\s*:[ \\t]*(.*)$","m"));return m?m[1].trim():""};
+    const ci=p.search(/^\s*내용\s*:/m);let content="";if(ci>=0){content=p.slice(ci).replace(/^\s*내용\s*:\s*/,"").trim()}
+    const num=get("번호"),name=get("이름"),type=TYPES.includes(get("유형"))?get("유형"):"",followUp=get("다음에 확인할 것");
+    if(!content&&!followUp)continue;
+    out.push({num,name,date:normDate(get("날짜")),type,content,followUp,sid:matchStudent(num,name)});}
+  return out;
+}
+function addPasted(){
+  const base=Date.now();S.paste.forEach((p,i)=>S.records.push({id:newId("r"),studentId:p.sid,date:p.date,type:p.type,content:p.content,followUp:p.followUp,followDone:false,doneDate:"",createdAt:base+i}));
+  const n=S.paste.length,one=n===1?S.paste[0].sid:null;S.paste=null;persist();
+  if(one){S.cur=one;S.view="student"}else S.view="list";render();window.scrollTo(0,0);toast(`${n}건을 상담일지에 넣었어요`);
+}
+// 학생 목록 등에서 Ctrl+V 하면 바로 붙여넣기 화면으로
+document.addEventListener("paste",e=>{
+  if(ro())return;const t=e.target;if(t&&(t.tagName==="TEXTAREA"||t.tagName==="INPUT"))return;
+  const txt=e.clipboardData?.getData("text")||"";if(!txt.includes("#상담기록"))return;
+  e.preventDefault();openPaste(txt);
+});
+
+// ---- 기록 동작
+function parseRoster(text){
+  const out=[];let auto=0;
+  for(const raw of text.split(/\r?\n/)){
+    let line=raw.replace(/[^\p{L}\p{N}\s,.\-\t()]/gu," ").trim();if(!line)continue;
+    const m=line.match(/^(\d{1,3})[\s,.\-\t]*(.+)$/);
+    let num,name;if(m){num=+m[1];name=m[2]}else{num=++auto;name=line}
+    name=name.replace(/[,\t]/g," ").replace(/\s+/g," ").trim();if(!name)continue;
+    auto=Math.max(auto,num);out.push({num,name});
+  }
+  return out;
+}
+function applyRoster(text){
+  const parsed=parseRoster(text);if(!parsed.length){toast("명단을 한 줄에 한 명씩 적어 주세요.");return}
+  const used=new Set();
+  const core=n=>n.split(/[\s\-_/(\[,.]/)[0];
+  const free=s=>!used.has(s.id);
+  S.roster=parsed.map(p=>{const old=S.roster.find(s=>free(s)&&s.name===p.name)||S.roster.find(s=>free(s)&&s.num===p.num&&!parsed.some(q=>q!==p&&q.name===s.name))||S.roster.find(s=>free(s)&&core(s.name)===core(p.name)&&!parsed.some(q=>q.name===s.name));const id=old?old.id:newId("s");used.add(id);return{id,num:p.num,name:p.name}}).sort((a,b)=>a.num-b.num);
+  persist();S.view="list";render();toast(`${S.roster.length}명 저장했어요`);
+}
+function saveRec(form,sid,ed){
+  const data={studentId:sid,date:form.date.value,type:form.type.value||"",content:form.content.value.trim(),followUp:form.followUp.value.trim()};
+  if(!data.content&&!data.followUp){toast("상담 내용을 적어 주세요.");return}
+  if(ed){const keep=ed.followUp===data.followUp;Object.assign(ed,data,{followDone:keep?!!ed.followDone:false,doneDate:keep?(ed.doneDate||""):""});S.editing=null;toast("수정했어요")}
+  else{S.records.push({id:newId("r"),...data,followDone:false,doneDate:"",createdAt:Date.now()});toast("저장했어요")}
+  persist();render._ed="fresh";render();
+}
+function setDone(r,v){r.followDone=v;r.doneDate=v?today():"";persist();render();toast("확인 완료로 표시했어요")}
+function delRec(r){S.delAsk=null;S.records=S.records.filter(x=>x!==r);persist();render();toast("삭제했어요")}
+
+// ---- 엑셀
+function loadExcel(){
+  if(window.ExcelJS)return Promise.resolve(window.ExcelJS);
+  if(loadExcel._p)return loadExcel._p;
+  loadExcel._p=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";s.onload=()=>window.ExcelJS?res(window.ExcelJS):rej(new Error("no ExcelJS"));s.onerror=()=>{loadExcel._p=null;s.remove();rej(new Error("load failed"))};document.head.appendChild(s)});
+  return loadExcel._p;
+}
+// 한글은 글자 폭이 두 배쯤이라 줄 수를 넉넉히 셈
+function estLines(text,width){let n=0;for(const line of String(text||"").split("\n")){let w=0;for(const ch of line)w+=/[ㄱ-힣]/.test(ch)?1.9:1;n+=Math.max(1,Math.ceil(w/(width*0.95)))}return n}
+function buildWorkbook(EX,roster,records,periodStart,day){
+  const wb=new EX.Workbook();wb.creator="우리반 상담일지";wb.created=new Date();
+  const C={ink:"FF1C2630",head:"FF2B5C8A",band:"FFF3F6F9",line:"FFD0D7DE",miss:"FFFBE9E7",missInk:"FFB3322A",gone:"FFEEEEEE",goneInk:"FF8A939C",todo:"FFFDF1DF",todoInk:"FFA35C00",ok:"FFE5F3EA",okInk:"FF2F7A4F"};
+  const FONT="맑은 고딕";
+  const thin={style:"thin",color:{argb:C.line}},border={top:thin,left:thin,bottom:thin,right:thin};
+  const fill=argb=>({type:"pattern",pattern:"solid",fgColor:{argb}});
+  const page={orientation:"landscape",paperSize:9,fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:0.4,right:0.4,top:0.5,bottom:0.5,header:0.2,footer:0.2}};
+  const title=(ws,text,sub,lastCol)=>{
+    ws.mergeCells(`A1:${lastCol}1`);const t=ws.getCell("A1");t.value=text;t.font={name:FONT,size:16,bold:true,color:{argb:C.ink}};t.alignment={vertical:"middle"};ws.getRow(1).height=30;
+    ws.mergeCells(`A2:${lastCol}2`);const s=ws.getCell("A2");s.value=sub;s.font={name:FONT,size:10,color:{argb:C.goneInk}};ws.getRow(2).height=18;
+  };
+  const header=(ws,rowNo,labels)=>{const r=ws.getRow(rowNo);labels.forEach((l,i)=>{const c=r.getCell(i+1);c.value=l;c.font={name:FONT,bold:true,color:{argb:"FFFFFFFF"}};c.fill=fill(C.head);c.alignment={vertical:"middle",horizontal:"center",wrapText:true};c.border=border});r.height=24};
+  const bodyRow=(row,n,bg)=>{for(let i=1;i<=n;i++){const c=row.getCell(i);c.font={name:FONT,size:10,color:{argb:C.ink}};c.alignment={vertical:"top",wrapText:true,horizontal:c.alignment&&c.alignment.horizontal||undefined};c.border=border;if(bg)c.fill=fill(bg)}};
+  const center=(row,cols)=>cols.forEach(i=>{const c=row.getCell(i);c.alignment={...c.alignment,horizontal:"center"}});
+  const fitHeight=(row,cells)=>{let m=1;for(const[t,w]of cells)m=Math.max(m,estLines(t,w));row.height=Math.max(18,m*14+6)};
+  const gone=s=>/전학/.test(s.name),nm=s=>gone(s)?s.name.replace(/[\s\-_/,.]*\(?전학\)?/g,"").trim()||s.name:s.name;
+  const sorted=[...roster].sort((a,b)=>a.num-b.num);
+  const recsOf={};for(const s of sorted)recsOf[s.id]=[];
+  for(const r of records)if(recsOf[r.studentId])recsOf[r.studentId].push(r);
+  for(const k in recsOf)recsOf[k].sort((a,b)=>a.date.localeCompare(b.date)||(a.createdAt||0)-(b.createdAt||0));
+  const md=d=>{if(!d)return"";const[,m,dd]=d.split("-");return `${+m}/${+dd}`};
+  const p2=n=>String(n).padStart(2,"0");
+  const checkText=r=>r.followUp?(r.followDone?"확인 완료"+(r.doneDate?` (${md(r.doneDate)})`:""):"미확인"):"";
+  const sub=`백업일 ${day}`+(periodStart?` · 이번 상담 기간 시작일 ${periodStart}`:"");
+
+  // 1) 학생별 현황
+  const s1=wb.addWorksheet("학생별 현황",{views:[{state:"frozen",ySplit:3}],pageSetup:page,properties:{tabColor:{argb:C.head}}});
+  [6,12,12,10,13,60].forEach((w,i)=>s1.getColumn(i+1).width=w);
+  const act=sorted.filter(s=>!gone(s)),inPer=s=>recsOf[s.id].some(r=>!periodStart||r.date>=periodStart);
+  title(s1,"우리반 상담 현황",`${sub} · 상담 완료 ${act.filter(inPer).length} / ${act.length}명`,"F");
+  header(s1,3,["번호","이름","상태","상담 횟수","최근 상담일","아직 확인하지 않은 것"]);
+  for(const s of sorted){const rs=recsOf[s.id],last=rs.length?rs[rs.length-1].date:"",open=rs.filter(r=>r.followUp&&!r.followDone);
+    const status=gone(s)?"전학":inPer(s)?"상담함":"미상담";
+    const openTxt=open.map(r=>`${md(r.date)} ${r.followUp}`).join("\n");
+    const row=s1.addRow([p2(s.num),nm(s),status,rs.length,last,openTxt]);
+    bodyRow(row,6,gone(s)?C.gone:null);center(row,[1,3,4,5]);
+    const st=row.getCell(3);
+    if(status==="미상담"){st.fill=fill(C.miss);st.font={name:FONT,size:10,bold:true,color:{argb:C.missInk}}}
+    else if(status==="상담함"){st.fill=fill(C.ok);st.font={name:FONT,size:10,color:{argb:C.okInk}}}
+    if(gone(s))for(let i=1;i<=6;i++)row.getCell(i).font={name:FONT,size:10,color:{argb:C.goneInk}};
+    if(open.length)row.getCell(6).fill=fill(C.todo);
+    fitHeight(row,[[openTxt,60]]);
+  }
+
+  // 2) 전체 기록
+  const s2=wb.addWorksheet("전체 기록",{views:[{state:"frozen",ySplit:1}],pageSetup:page});
+  [6,14,12,9,72,34,13].forEach((w,i)=>s2.getColumn(i+1).width=w);
+  header(s2,1,["번호","이름","날짜","유형","상담 내용","다음에 확인할 것","확인"]);
+  let band=false;
+  for(const s of sorted){const rs=recsOf[s.id];if(!rs.length)continue;band=!band;
+    for(const r of rs){const row=s2.addRow([p2(s.num),nm(s)+(gone(s)?" (전학)":""),r.date,r.type||"",r.content||"",r.followUp||"",checkText(r)]);
+      bodyRow(row,7,band?C.band:null);center(row,[1,2,3,4,7]);
+      if(r.followUp&&!r.followDone){row.getCell(7).font={name:FONT,size:10,bold:true,color:{argb:C.todoInk}};row.getCell(6).fill=fill(C.todo)}
+      fitHeight(row,[[r.content,72],[r.followUp,34]]);}
+  }
+  s2.autoFilter={from:"A1",to:"G1"};
+
+  // 3) 학생 한 명당 한 장
+  const used=new Set();
+  for(const s of sorted){const rs=recsOf[s.id];
+    let name=`${p2(s.num)} ${nm(s)}`.replace(/[\\/?*\[\]:]/g,"").slice(0,31);while(used.has(name))name=name.slice(0,29)+"_";used.add(name);
+    const ws=wb.addWorksheet(name,{views:[{state:"frozen",ySplit:3}],pageSetup:page,properties:gone(s)?{tabColor:{argb:"FFBBBBBB"}}:{}});
+    [12,9,72,34,12].forEach((w,i)=>ws.getColumn(i+1).width=w);
+    const last=rs.length?rs[rs.length-1].date:"";
+    title(ws,`${p2(s.num)} ${nm(s)}${gone(s)?" (전학)":""}`,rs.length?`상담 ${rs.length}회 · 최근 상담 ${last} · ${sub}`:`상담 기록 없음 · ${sub}`,"E");
+    header(ws,3,["날짜","유형","상담 내용","다음에 확인할 것","확인"]);
+    rs.forEach((r,i)=>{const row=ws.addRow([r.date,r.type||"",r.content||"",r.followUp||"",checkText(r)]);
+      bodyRow(row,5,i%2?C.band:null);center(row,[1,2,5]);
+      if(r.followUp&&!r.followDone){row.getCell(5).font={name:FONT,size:10,bold:true,color:{argb:C.todoInk}};row.getCell(4).fill=fill(C.todo)}
+      fitHeight(row,[[r.content,72],[r.followUp,34]]);});
+    if(!rs.length){const row=ws.addRow(["","","아직 상담 기록이 없어요.","",""]);bodyRow(row,5,null)}
+  }
+  return wb;
+}
+
+async function exportXlsx(){
+  if(exportXlsx.busy)return;exportXlsx.busy=true;toast("엑셀 파일을 만드는 중이에요…");
+  try{
+    let EX;try{EX=await loadExcel()}catch(e){toast("엑셀 도구를 불러오지 못했어요. 인터넷에 연결된 상태에서 다시 눌러 주세요.");return}
+    const wb=buildWorkbook(EX,S.roster,S.records,S.periodStart,ro()?ymd(S.savedAt):today());
+    const buf=await wb.xlsx.writeBuffer();
+    download(`상담일지_${ro()?ymd(S.savedAt)+"_보관본":today()}.xlsx`,new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));toast("엑셀 파일을 저장했어요 (다운로드 폴더)");
+  }catch(e){toast("엑셀 파일을 만들지 못했어요. 다시 눌러 주세요.")}
+  finally{exportXlsx.busy=false}
+}
+
+// ---- Firebase 로그인 및 동기화
+function loginScreen(message=""){
+  app.replaceChildren(h("div",{class:"panel",style:"max-width:440px;margin:60px auto"},
+    h("h1",null,"🌸 우리반 상담일지"),
+    h("p",null,"본인 계정으로 로그인해야 상담 기록을 볼 수 있습니다."),
+    message?h("div",{class:"warn"},message):null,
+    h("form",{onsubmit:async e=>{
+      e.preventDefault();const f=e.target;const b=f.querySelector("button");b.disabled=true;
+      try{await firebase.auth().signInWithEmailAndPassword(f.email.value.trim(),f.password.value)}
+      catch(err){loginScreen("로그인에 실패했어요. 이메일과 비밀번호 또는 Firebase 계정 설정을 확인하세요.")}
+      finally{b.disabled=false}
+    }},
+      h("div",{class:"field"},h("label",null,"이메일"),h("input",{name:"email",type:"email",autocomplete:"username",required:true})),
+      h("div",{class:"field"},h("label",null,"비밀번호"),h("input",{name:"password",type:"password",autocomplete:"current-password",required:true})),
+      h("button",{class:"primary",type:"submit"},"로그인")),
+    h("p",{class:"status-line"},"계정은 Firebase 콘솔에서 관리자 본인이 생성합니다. 이 화면에서는 회원가입할 수 없습니다.")));
+}
+function initSaved(){S.lastSaved={meta:JSON.stringify({savedAt:S.savedAt,lastFileSave:S.lastFileSave,periodStart:S.periodStart}),roster:JSON.stringify(S.roster),recs:new Map(S.records.map(x=>[x.id,JSON.stringify(x)]))}}
+async function loadCloud(){
+  const base="users/"+UID;
+  LOADING=true;
+  try{
+    const[m,r,rs]=await Promise.all([DB.doc(base+"/main").get(),DB.doc(base+"/roster").get(),DB.collection(base+"/records").get()]);
+    const meta=m.exists?m.data():{};
+    load({periodStart:meta.periodStart||"",savedAt:meta.savedAt||"",lastFileSave:meta.lastFileSave||"",students:r.exists?(r.data().students||[]):[],records:rs.docs.map(d=>d.data())});
+    initSaved();S.storageOk=true;render();
+  }catch(e){S.storageOk=false;app.replaceChildren(h("div",{class:"warn"},"클라우드 기록을 불러오지 못했습니다. Firebase 설정과 보안 규칙을 확인한 뒤 새로고침하세요."));}
+  finally{LOADING=false}
+}
+async function start(){
+  if(!window.FIREBASE_CONFIG||!window.FIREBASE_CONFIG.apiKey||window.FIREBASE_CONFIG.apiKey==="여기에_API_KEY"){
+    app.replaceChildren(h("div",{class:"panel"},h("h2",null,"Firebase 연결 설정이 필요합니다"),h("p",null,"함께 제공된 설정 안내서를 따라 firebase-config.js를 입력하고 웹 호스팅에 올려 주세요.")));return;
+  }
+  try{
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+    DB=firebase.firestore();
+    firebase.auth().onAuthStateChanged(async user=>{
+      await SAVING.catch(()=>{});
+      UNSUB.forEach(fn=>fn());UNSUB=[];
+      if(!user){UID=null;S.lastSaved=null;S.roster=[];S.records=[];loginScreen();return}
+      UID=user.uid;S.roster=[];S.records=[];S.lastSaved=null;await loadCloud();
+      if(!S.lastSaved)return;
+      // 다른 기기에서 변경된 기록을 자동 반영합니다. 이 기기의 저장이 끝난 뒤에만 갱신합니다.
+      let first=true;
+      const unsub=DB.collection("users/"+UID+"/records").onSnapshot(async snap=>{
+        if(first){first=false;return}
+        await SAVING.catch(()=>{});
+        if(LOADING||!UID||snap.metadata.hasPendingWrites||S.editing||!S.storageOk)return;
+        const incoming=snap.docs.map(d=>d.data());
+        if(JSON.stringify([...incoming].sort((a,b)=>a.id.localeCompare(b.id)))===JSON.stringify([...S.records].sort((a,b)=>a.id.localeCompare(b.id))))return;
+        S.records=incoming;initSaved();render();
+      },()=>{S.storageOk=false;render()});
+      UNSUB.push(unsub);
+      // 명단/기간 변경도 다른 기기에 반영
+      for(const path of ["roster","main"]){
+        let initial=true;
+        UNSUB.push(DB.doc("users/"+UID+"/"+path).onSnapshot(async doc=>{
+          if(initial){initial=false;return}
+          await SAVING.catch(()=>{});
+          if(!doc.exists||doc.metadata.hasPendingWrites||LOADING)return;
+          const d=doc.data();
+          if(path==="roster")S.roster=d.students||[];
+          else {S.periodStart=d.periodStart||"";S.savedAt=d.savedAt||"";S.lastFileSave=d.lastFileSave||""}
+          initSaved();render();
+        }));
+      }
+    });
+  }catch(e){app.replaceChildren(h("div",{class:"warn"},"Firebase를 시작하지 못했습니다. 설정과 인터넷 연결을 확인하세요."))}
+}
+start();
+</script>
+</body>
+</html>
