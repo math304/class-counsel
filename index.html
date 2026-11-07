@@ -176,8 +176,8 @@ async function saveAll(){
   if(mj!==S.lastSaved.meta){await DB.doc(base+"/main").set(meta);S.lastSaved.meta=mj}
   if(rj!==S.lastSaved.roster){await DB.doc(base+"/roster").set({students:S.roster});S.lastSaved.roster=rj}
   const cur=new Map(S.records.map(r=>[r.id,JSON.stringify(r)]));
-  for(const[id,j]of cur){if(S.lastSaved.recs.get(id)!==j){await DB.doc(base+"/main/records/"+id).set(JSON.parse(j));S.lastSaved.recs.set(id,j)}}
-  for(const id of [...S.lastSaved.recs.keys()]){if(!cur.has(id)){await DB.doc(base+"/main/records/"+id).delete();S.lastSaved.recs.delete(id)}}
+  for(const[id,j]of cur){if(S.lastSaved.recs.get(id)!==j){await DB.doc(base+"/records/"+id).set(JSON.parse(j));S.lastSaved.recs.set(id,j)}}
+  for(const id of [...S.lastSaved.recs.keys()]){if(!cur.has(id)){await DB.doc(base+"/records/"+id).delete();S.lastSaved.recs.delete(id)}}
   S.storageOk=true;
 }
 async function download(name,blob){
@@ -596,7 +596,7 @@ async function loadCloud(){
   const base="users/"+UID;
   LOADING=true;
   try{
-    const[m,r,rs]=await Promise.all([DB.doc(base+"/main").get(),DB.doc(base+"/roster").get(),DB.collection(base+"/main/records").get()]);
+    const[m,r,rs]=await Promise.all([DB.doc(base+"/main").get(),DB.doc(base+"/roster").get(),DB.collection(base+"/records").get()]);
     const meta=m.exists?m.data():{};
     load({periodStart:meta.periodStart||"",savedAt:meta.savedAt||"",lastFileSave:meta.lastFileSave||"",students:r.exists?(r.data().students||[]):[],records:rs.docs.map(d=>d.data())});
     initSaved();S.storageOk=true;render();
@@ -618,7 +618,7 @@ async function start(){
       if(!S.lastSaved)return;
       // 다른 기기에서 변경된 기록을 자동 반영합니다. 이 기기의 저장이 끝난 뒤에만 갱신합니다.
       let first=true;
-      const unsub=DB.collection("users/"+UID+"/main/records").onSnapshot(async snap=>{
+      const unsub=DB.collection("users/"+UID+"/records").onSnapshot(async snap=>{
         if(first){first=false;return}
         await SAVING.catch(()=>{});
         if(LOADING||!UID||snap.metadata.hasPendingWrites||S.editing||!S.storageOk)return;
